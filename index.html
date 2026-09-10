@@ -169,59 +169,6 @@
             gap: 8px;
         }
 
-        .chat-item {
-            display: flex;
-            gap: 12px;
-            padding: 12px;
-            background: rgba(0, 188, 212, 0);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: background 0.2s;
-            border: 1px solid transparent;
-        }
-
-        .chat-item:hover {
-            background: rgba(0, 188, 212, 0.1);
-        }
-
-        .chat-item.active {
-            background: rgba(0, 188, 212, 0.15);
-            border: 1px solid rgba(0, 188, 212, 0.3);
-        }
-
-        .chat-item img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .chat-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .chat-name {
-            font-weight: 600;
-            color: #ffffff;
-            font-size: 14px;
-        }
-
-        .chat-preview {
-            font-size: 12px;
-            color: #6a7a8a;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-top: 2px;
-        }
-
-        .chat-status {
-            font-size: 11px;
-            color: #00bcd4;
-            margin-top: 2px;
-        }
-
         /* ===== CHAT CONTAINER ===== */
         .chat-container {
             flex: 1;
@@ -482,43 +429,7 @@
                     Logged in as: <span id="username">Ch3rryVnilla</span>
                 </div>
 
-                <div class="chat-list">
-                    <div class="chat-item active" data-chat="g0thb4by">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=g0thb4by" alt="g0thb4by">
-                        <div class="chat-info">
-                            <div class="chat-name">g0thb4by</div>
-                            <div class="chat-preview">i am at homeeee</div>
-                            <div class="chat-status">Opened</div>
-                        </div>
-                    </div>
-
-                    <div class="chat-item" data-chat="anki">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=anki" alt="anki">
-                        <div class="chat-info">
-                            <div class="chat-name">anki</div>
-                            <div class="chat-preview">I'd laugh if anyone got hit by a giant ca</div>
-                            <div class="chat-status">Opened</div>
-                        </div>
-                    </div>
-
-                    <div class="chat-item" data-chat="Hades">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Hades" alt="Hades">
-                        <div class="chat-info">
-                            <div class="chat-name">Hades</div>
-                            <div class="chat-preview">can we please just try zoom</div>
-                            <div class="chat-status">Opened</div>
-                        </div>
-                    </div>
-
-                    <div class="chat-item" data-chat="twumsic">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=twumsic" alt="twumsic">
-                        <div class="chat-info">
-                            <div class="chat-name">twumsic</div>
-                            <div class="chat-preview">lol no I'm a junior</div>
-                            <div class="chat-status">Delivered</div>
-                        </div>
-                    </div>
-                </div>
+                <div class="chat-list"></div>
             </div>
         </div>
 
@@ -526,8 +437,8 @@
         <div class="chat-container">
             <div class="chat-header">
                 <div class="header-info">
-                    <img id="chatHeaderAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=g0thb4by" alt="user">
-                    <span id="chatHeaderName">g0thb4by</span>
+                    <img id="chatHeaderAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=user" alt="user">
+                    <span id="chatHeaderName">Start a new chat</span>
                 </div>
                 <div class="header-actions">
                     <button class="action-btn"><i class="fas fa-phone"></i></button>
@@ -555,73 +466,13 @@
     </div>
 
     <script>
-        // Sample chat data
-        const chatsData = {
-            'g0thb4by': {
-                name: 'g0thb4by',
-                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=g0thb4by',
-                messages: [
-                    { text: 'no I\'m not', sender: 'other', time: '11:13 AM' },
-                    { text: 'tootally', sender: 'other', time: '11:13 AM' },
-                    { text: 'lmao I\'m at home fr', sender: 'own', time: '11:29 AM' },
-                    { text: 'uh huhh', sender: 'other', time: '11:44 AM' },
-                    { text: 'i am at homeeee', sender: 'own', time: '01:49 PM' },
-                    { text: 'my sister was wondering if you wanted to come over the day of hoco and get ready here she said we are going to make chicken pasta and you can have dinner here', sender: 'own', time: '03:39 PM' }
-                ]
-            },
-            'anki': {
-                name: 'anki',
-                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=anki',
-                messages: [
-                    { text: 'Hey!', sender: 'other', time: '10:00 AM' },
-                    { text: 'I\'d laugh if anyone got hit by a giant ca', sender: 'other', time: '10:05 AM' },
-                    { text: 'haha yeah', sender: 'own', time: '10:15 AM' }
-                ]
-            },
-            'Hades': {
-                name: 'Hades',
-                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Hades',
-                messages: [
-                    { text: 'can we please just try zoom', sender: 'other', time: '09:30 AM' },
-                    { text: 'sure', sender: 'own', time: '09:45 AM' }
-                ]
-            },
-            'twumsic': {
-                name: 'twumsic',
-                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=twumsic',
-                messages: [
-                    { text: 'yo', sender: 'other', time: '08:00 AM' },
-                    { text: 'lol no I\'m a junior', sender: 'other', time: '08:15 AM' },
-                    { text: 'cool', sender: 'own', time: '08:30 AM' }
-                ]
-            }
-        };
-
-        let currentChat = 'g0thb4by';
-
         // DOM Elements
         const messagesContainer = document.getElementById('messagesContainer');
         const messageInput = document.getElementById('messageInput');
         const sendBtn = document.querySelector('.send-btn');
-        const chatItems = document.querySelectorAll('.chat-item');
         const chatHeaderName = document.getElementById('chatHeaderName');
         const chatHeaderAvatar = document.getElementById('chatHeaderAvatar');
-
-        // Load initial chat
-        loadChat('g0thb4by');
-
-        // Chat item click handler
-        chatItems.forEach(item => {
-            item.addEventListener('click', () => {
-                // Remove active class from all items
-                chatItems.forEach(i => i.classList.remove('active'));
-                // Add active class to clicked item
-                item.classList.add('active');
-                // Load the selected chat
-                const chatName = item.dataset.chat;
-                loadChat(chatName);
-            });
-        });
+        const newChatBtn = document.querySelector('.new-chat-btn');
 
         // Send message handler
         sendBtn.addEventListener('click', sendMessage);
@@ -632,25 +483,16 @@
             }
         });
 
-        function loadChat(chatName) {
-            currentChat = chatName;
-            const chat = chatsData[chatName];
-            
-            // Update header
-            chatHeaderName.textContent = chat.name;
-            chatHeaderAvatar.src = chat.avatar;
-            
-            // Clear messages
-            messagesContainer.innerHTML = '';
-            
-            // Load messages
-            chat.messages.forEach(msg => {
-                addMessageToDOM(msg.text, msg.sender, msg.time);
-            });
-            
-            // Scroll to bottom
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
+        // New chat button handler
+        newChatBtn.addEventListener('click', () => {
+            const userName = prompt('Enter the name of the person to chat with:');
+            if (userName) {
+                chatHeaderName.textContent = userName;
+                chatHeaderAvatar.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${userName}`;
+                messagesContainer.innerHTML = '';
+                messageInput.focus();
+            }
+        });
 
         function addMessageToDOM(text, sender, time) {
             const messageGroup = document.createElement('div');
@@ -660,8 +502,8 @@
             avatar.className = 'message-avatar';
             avatar.src = sender === 'own' 
                 ? 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ch3rryVnilla'
-                : chatsData[currentChat].avatar;
-            avatar.alt = sender === 'own' ? 'You' : currentChat;
+                : chatHeaderAvatar.src;
+            avatar.alt = sender === 'own' ? 'You' : chatHeaderName.textContent;
             
             const messageContent = document.createElement('div');
             messageContent.className = 'message-content';
@@ -687,19 +529,17 @@
             const text = messageInput.value.trim();
             if (!text) return;
             
+            if (chatHeaderName.textContent === 'Start a new chat') {
+                alert('Please start a new chat first by clicking "New Chat"');
+                return;
+            }
+            
             // Get current time
             const now = new Date();
             const time = now.toLocaleTimeString('en-US', { 
                 hour: '2-digit', 
                 minute: '2-digit',
                 hour12: true 
-            });
-            
-            // Add message to data
-            chatsData[currentChat].messages.push({
-                text: text,
-                sender: 'own',
-                time: time
             });
             
             // Add message to DOM
@@ -729,12 +569,6 @@
                     hour: '2-digit', 
                     minute: '2-digit',
                     hour12: true 
-                });
-                
-                chatsData[currentChat].messages.push({
-                    text: randomReply,
-                    sender: 'other',
-                    time: replyTime
                 });
                 
                 addMessageToDOM(randomReply, 'other', replyTime);
