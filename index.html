@@ -364,7 +364,32 @@
             padding: 20px;
         }
 
-        .chat-item, .friend-item {
+        .request-badge {
+            display: inline-block;
+            background: #ff6b6b;
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+
+        .pending-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #00bcd4;
+            padding: 0 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .chat-item, .friend-item, .request-item {
             display: flex;
             gap: 12px;
             padding: 12px;
@@ -375,7 +400,7 @@
             border: 1px solid transparent;
         }
 
-        .chat-item:hover, .friend-item:hover {
+        .chat-item:hover, .friend-item:hover, .request-item:hover {
             background: rgba(0, 188, 212, 0.08);
         }
 
@@ -384,7 +409,7 @@
             border: 1px solid rgba(0, 188, 212, 0.2);
         }
 
-        .chat-item img, .friend-item img {
+        .chat-item img, .friend-item img, .request-item img {
             width: 44px;
             height: 44px;
             border-radius: 50%;
@@ -392,7 +417,7 @@
             flex-shrink: 0;
         }
 
-        .chat-info, .friend-info {
+        .chat-info, .friend-info, .request-info {
             flex: 1;
             min-width: 0;
             display: flex;
@@ -400,7 +425,7 @@
             justify-content: center;
         }
 
-        .chat-name, .friend-name {
+        .chat-name, .friend-name, .request-name {
             font-weight: 600;
             color: #ffffff;
             font-size: 13px;
@@ -415,13 +440,13 @@
             margin-top: 3px;
         }
 
-        .friend-action {
+        .friend-action, .request-action {
             display: flex;
             gap: 6px;
             margin-top: 6px;
         }
 
-        .friend-btn {
+        .friend-btn, .request-btn {
             flex: 1;
             padding: 4px 8px;
             background: #00bcd4;
@@ -434,15 +459,15 @@
             transition: background 0.2s;
         }
 
-        .friend-btn:hover {
+        .friend-btn:hover, .request-btn:hover {
             background: #00afc4;
         }
 
-        .friend-btn.decline {
+        .request-btn.decline {
             background: #666;
         }
 
-        .friend-btn.decline:hover {
+        .request-btn.decline:hover {
             background: #777;
         }
 
@@ -840,7 +865,7 @@
                     <span>Chats</span>
                 </div>
                 <div class="header-icons">
-                    <button class="icon-btn" id="friendRequestBtn" onclick="toggleFriendRequests()"><i class="fas fa-user-check"></i></button>
+                    <button class="icon-btn" id="friendRequestBtn" onclick="showPendingRequests()"><i class="fas fa-user-check"></i></button>
                     <button class="icon-btn" onclick="openAddFriendsModal()"><i class="fas fa-user-plus"></i></button>
                     <button class="icon-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
                 </div>
@@ -923,34 +948,68 @@
         let currentUser = null;
         let currentTab = 'chats';
 
-        // Create sample users
-        function initializeSampleUsers() {
-            users = {
-                'alice': {
-                    username: 'alice',
-                    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=alice',
-                    friends: [],
-                    sentRequests: [],
-                    receivedRequests: []
-                },
-                'bob': {
-                    username: 'bob',
-                    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=bob',
-                    friends: [],
-                    sentRequests: [],
-                    receivedRequests: []
-                },
-                'charlie': {
-                    username: 'charlie',
-                    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=charlie',
-                    friends: [],
-                    sentRequests: [],
-                    receivedRequests: []
-                }
-            };
+        // LocalStorage keys
+        const STORAGE_USERS_KEY = 'chatAppUsers';
+        const STORAGE_CHATS_KEY = 'chatAppChats';
+        const STORAGE_CURRENT_USER_KEY = 'chatAppCurrentUser';
+
+        // Initialize sample users and load from storage
+        function initializeData() {
+            // Load from localStorage
+            const savedUsers = localStorage.getItem(STORAGE_USERS_KEY);
+            const savedChats = localStorage.getItem(STORAGE_CHATS_KEY);
+
+            if (savedUsers) {
+                users = JSON.parse(savedUsers);
+            } else {
+                // Create sample users
+                users = {
+                    'alice': {
+                        username: 'alice',
+                        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=alice',
+                        friends: [],
+                        sentRequests: [],
+                        receivedRequests: []
+                    },
+                    'bob': {
+                        username: 'bob',
+                        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=bob',
+                        friends: [],
+                        sentRequests: [],
+                        receivedRequests: []
+                    },
+                    'charlie': {
+                        username: 'charlie',
+                        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=charlie',
+                        friends: [],
+                        sentRequests: [],
+                        receivedRequests: []
+                    }
+                };
+                saveUsers();
+            }
+
+            if (savedChats) {
+                chatsData = JSON.parse(savedChats);
+            }
+
+            // Check if user is already logged in
+            const savedCurrentUser = localStorage.getItem(STORAGE_CURRENT_USER_KEY);
+            if (savedCurrentUser && users[savedCurrentUser]) {
+                loginUser(savedCurrentUser, false);
+            }
         }
 
-        initializeSampleUsers();
+        function saveUsers() {
+            localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
+        }
+
+        function saveChats() {
+            localStorage.setItem(STORAGE_CHATS_KEY, JSON.stringify(chatsData));
+        }
+
+        // Initialize on page load
+        initializeData();
 
         // Auth tab switching
         document.querySelectorAll('.auth-tab').forEach(tab => {
@@ -986,11 +1045,12 @@
                     sentRequests: [],
                     receivedRequests: []
                 };
+                saveUsers();
             }
             loginUser(username);
         }
 
-        function loginUser(username) {
+        function loginUser(username, showAuth = true) {
             if (!users[username]) {
                 users[username] = {
                     username: username,
@@ -999,10 +1059,14 @@
                     sentRequests: [],
                     receivedRequests: []
                 };
+                saveUsers();
             }
             currentUser = username;
+            localStorage.setItem(STORAGE_CURRENT_USER_KEY, username);
             document.getElementById('username').textContent = username;
-            document.getElementById('authScreen').style.display = 'none';
+            if (showAuth) {
+                document.getElementById('authScreen').style.display = 'none';
+            }
             document.getElementById('chatApp').classList.add('active');
             updateContentList();
         }
@@ -1010,8 +1074,8 @@
         function logout() {
             currentUser = null;
             currentChat = null;
-            chatsData = {};
             currentTab = 'chats';
+            localStorage.removeItem(STORAGE_CURRENT_USER_KEY);
             document.getElementById('authScreen').style.display = 'flex';
             document.getElementById('chatApp').classList.remove('active');
             document.getElementById('messagesContainer').innerHTML = 'Start a conversation to see messages here';
@@ -1060,6 +1124,7 @@
 
             currentUserData.sentRequests.push(friendUsername);
             users[friendUsername].receivedRequests.push(currentUser);
+            saveUsers();
             alert('Friend request sent!');
             closeAddFriendsModal();
         }
@@ -1070,6 +1135,7 @@
             users[username].friends.push(currentUser);
             currentUserData.receivedRequests = currentUserData.receivedRequests.filter(u => u !== username);
             users[username].sentRequests = users[username].sentRequests.filter(u => u !== currentUser);
+            saveUsers();
             updateContentList();
             updateFriendRequestBadge();
         }
@@ -1078,29 +1144,32 @@
             const currentUserData = users[currentUser];
             currentUserData.receivedRequests = currentUserData.receivedRequests.filter(u => u !== username);
             users[username].sentRequests = users[username].sentRequests.filter(u => u !== currentUser);
+            saveUsers();
             updateContentList();
             updateFriendRequestBadge();
         }
 
-        function toggleFriendRequests() {
+        function showPendingRequests() {
             const currentUserData = users[currentUser];
-            if (currentUserData.receivedRequests.length === 0) return;
+            if (currentUserData.receivedRequests.length === 0) {
+                alert('No pending friend requests!');
+                return;
+            }
             
-            // Show friend requests temporarily
             const contentList = document.getElementById('contentList');
-            contentList.innerHTML = '';
+            contentList.innerHTML = '<div class="section-title">Pending Friend Requests</div>';
             
             currentUserData.receivedRequests.forEach(username => {
                 const user = users[username];
                 const item = document.createElement('div');
-                item.className = 'friend-item';
+                item.className = 'request-item';
                 item.innerHTML = `
                     <img src="${user.avatar}" alt="${username}">
-                    <div class="friend-info">
-                        <div class="friend-name">${username}</div>
-                        <div class="friend-action">
-                            <button class="friend-btn" onclick="acceptFriendRequest('${username}')">Accept</button>
-                            <button class="friend-btn decline" onclick="declineFriendRequest('${username}')">Decline</button>
+                    <div class="request-info">
+                        <div class="request-name">${username}</div>
+                        <div class="request-action">
+                            <button class="request-btn" onclick="acceptFriendRequest('${username}')">Accept</button>
+                            <button class="request-btn decline" onclick="declineFriendRequest('${username}')">Decline</button>
                         </div>
                     </div>
                 `;
@@ -1177,6 +1246,7 @@
                     preview: '',
                     messages: []
                 };
+                saveChats();
             }
             loadChat(friendName);
         }
@@ -1288,6 +1358,7 @@
             });
             
             chatsData[currentChat].preview = text;
+            saveChats();
             
             if (messagesContainer.classList.contains('empty')) {
                 messagesContainer.innerHTML = '';
@@ -1315,6 +1386,7 @@
                 });
                 
                 chatsData[currentChat].preview = randomReply;
+                saveChats();
                 addMessageToDOM(randomReply, 'other', replyTime);
                 updateContentList();
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
