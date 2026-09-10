@@ -329,6 +329,17 @@
             gap: 8px;
         }
 
+        .empty-chat-message {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+            padding: 20px;
+        }
+
         .chat-item {
             display: flex;
             gap: 12px;
@@ -448,6 +459,13 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .messages.empty {
+            color: #666;
+            font-size: 14px;
         }
 
         .message-group {
@@ -455,6 +473,7 @@
             gap: 8px;
             margin-bottom: 2px;
             align-items: flex-end;
+            width: 100%;
         }
 
         .message-group.own {
@@ -688,7 +707,7 @@
                     <i class="fas fa-user-circle"></i>
                 </div>
 
-                <button class="new-chat-btn">
+                <button class="new-chat-btn" onclick="startNewChat()">
                     <i class="fas fa-plus"></i> New Chat
                 </button>
 
@@ -701,7 +720,9 @@
                     Logged in as: <span id="username">User</span>
                 </div>
 
-                <div class="chat-list" id="chatList"></div>
+                <div class="chat-list" id="chatList">
+                    <div class="empty-chat-message">No chats yet. Click "New Chat" to start!</div>
+                </div>
             </div>
         </div>
 
@@ -720,7 +741,7 @@
                 </div>
             </div>
 
-            <div class="messages" id="messagesContainer"></div>
+            <div class="messages empty" id="messagesContainer">Start a conversation to see messages here</div>
 
             <div class="message-input-area">
                 <div class="input-actions">
@@ -729,58 +750,15 @@
                     <button class="input-action-btn"><i class="fas fa-image"></i></button>
                     <button class="input-action-btn"><i class="fas fa-calendar"></i></button>
                 </div>
-                <input type="text" id="messageInput" placeholder="type a message..." class="message-input">
-                <button class="send-btn"><i class="fas fa-paper-plane"></i></button>
+                <input type="text" id="messageInput" placeholder="type a message..." class="message-input" disabled>
+                <button class="send-btn" disabled><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
     </div>
 
     <script>
-        // Sample chat data
-        const chatsData = {
-            'g0thb4by': {
-                name: 'g0thb4by',
-                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=g0thb4by',
-                preview: 'i am at homeeee',
-                status: 'Opened',
-                messages: [
-                    { text: 'no I\'m not', sender: 'other', time: '11:13 AM' },
-                    { text: 'tootally', sender: 'other', time: '11:13 AM' },
-                    { text: 'lmao I\'m at home fr', sender: 'own', time: '11:29 AM' },
-                    { text: 'uh huhh', sender: 'other', time: '11:44 AM' },
-                    { text: 'i am at homeeee', sender: 'own', time: '01:49 PM' },
-                    { text: 'my sister was wondering if you wanted to come over the day of hoco and get ready here she said we are going to make chicken pasta and you can have dinner here', sender: 'own', time: '03:39 PM' }
-                ]
-            },
-            'anki': {
-                name: 'anki',
-                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=anki',
-                preview: 'I\'d laugh if anyone got hit by a giant ca',
-                status: 'Opened',
-                messages: [
-                    { text: 'Hey there!', sender: 'other', time: '10:00 AM' }
-                ]
-            },
-            'Hades': {
-                name: 'Hades',
-                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Hades',
-                preview: 'can we please just try zoom',
-                status: 'Opened',
-                messages: [
-                    { text: 'Hey!', sender: 'other', time: '09:30 AM' }
-                ]
-            },
-            'twumsic': {
-                name: 'twumsic',
-                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=twumsic',
-                preview: 'lol no I\'m a junior',
-                status: 'Delivered',
-                messages: [
-                    { text: 'yo', sender: 'other', time: '08:00 AM' }
-                ]
-            }
-        };
-
+        // Chat data storage
+        let chatsData = {};
         let currentChat = null;
         let currentUser = null;
 
@@ -818,15 +796,36 @@
             document.getElementById('username').textContent = username;
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('chatApp').classList.add('active');
-            initializeChatList();
+            updateChatList();
         }
 
         function logout() {
             currentUser = null;
             currentChat = null;
+            chatsData = {};
             document.getElementById('authScreen').style.display = 'flex';
             document.getElementById('chatApp').classList.remove('active');
-            document.getElementById('messagesContainer').innerHTML = '';
+            document.getElementById('messagesContainer').innerHTML = 'Start a conversation to see messages here';
+            document.getElementById('messagesContainer').classList.add('empty');
+        }
+
+        function startNewChat() {
+            const contactName = prompt('Enter the name of the person to chat with:');
+            if (contactName && contactName.trim()) {
+                const chatName = contactName.trim();
+                if (!chatsData[chatName]) {
+                    chatsData[chatName] = {
+                        name: chatName,
+                        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${chatName}`,
+                        preview: 'No messages yet',
+                        messages: []
+                    };
+                    updateChatList();
+                    loadChat(chatName);
+                } else {
+                    loadChat(chatName);
+                }
+            }
         }
 
         // DOM Elements
@@ -837,10 +836,17 @@
         const chatHeaderAvatar = document.getElementById('chatHeaderAvatar');
         const chatList = document.getElementById('chatList');
 
-        // Initialize chat list
-        function initializeChatList() {
+        // Update chat list display
+        function updateChatList() {
             chatList.innerHTML = '';
-            Object.keys(chatsData).forEach(chatName => {
+            const chatNames = Object.keys(chatsData);
+            
+            if (chatNames.length === 0) {
+                chatList.innerHTML = '<div class="empty-chat-message">No chats yet. Click "New Chat" to start!</div>';
+                return;
+            }
+
+            chatNames.forEach(chatName => {
                 const chat = chatsData[chatName];
                 const chatItem = document.createElement('div');
                 chatItem.className = `chat-item ${chatName === currentChat ? 'active' : ''}`;
@@ -874,22 +880,33 @@
             chatHeaderName.textContent = chat.name;
             chatHeaderAvatar.src = chat.avatar;
             
+            // Enable input
+            messageInput.disabled = false;
+            sendBtn.disabled = false;
+            
             // Update active chat item
             document.querySelectorAll('.chat-item').forEach(item => {
                 item.classList.remove('active');
             });
-            document.querySelector(`[data-chat="${chatName}"]`).classList.add('active');
+            document.querySelector(`[data-chat="${chatName}"]`)?.classList.add('active');
             
             // Clear messages
             messagesContainer.innerHTML = '';
+            messagesContainer.classList.remove('empty');
             
             // Load messages
-            chat.messages.forEach(msg => {
-                addMessageToDOM(msg.text, msg.sender, msg.time);
-            });
+            if (chat.messages.length === 0) {
+                messagesContainer.innerHTML = 'Start the conversation!';
+                messagesContainer.classList.add('empty');
+            } else {
+                chat.messages.forEach(msg => {
+                    addMessageToDOM(msg.text, msg.sender, msg.time);
+                });
+            }
             
             // Scroll to bottom
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            messageInput.focus();
         }
 
         function addMessageToDOM(text, sender, time) {
@@ -942,7 +959,14 @@
                 time: time
             });
             
+            // Update preview
+            chatsData[currentChat].preview = text;
+            
             // Add message to DOM
+            if (messagesContainer.classList.contains('empty')) {
+                messagesContainer.innerHTML = '';
+                messagesContainer.classList.remove('empty');
+            }
             addMessageToDOM(text, 'own', time);
             
             // Clear input
@@ -977,7 +1001,9 @@
                     time: replyTime
                 });
                 
+                chatsData[currentChat].preview = randomReply;
                 addMessageToDOM(randomReply, 'other', replyTime);
+                updateChatList();
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }, 1000);
         }
